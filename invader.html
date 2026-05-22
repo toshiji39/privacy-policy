@@ -12,6 +12,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100vh;
     height: 100dvh;
     overflow: hidden;
     font-family: 'Courier New', monospace;
@@ -138,14 +139,17 @@ function resize() {
   const maxW = Math.min(window.innerWidth, 480);
   const hud = document.getElementById('hud');
   const controls = document.getElementById('controls');
-  const hudH = hud.offsetHeight;
-  const ctrlH = controls.offsetHeight;
-  const availH = window.innerHeight - hudH - ctrlH - 16;
+  const hudH = hud.offsetHeight || 24;
+  const ctrlH = controls.offsetHeight || 86;
+  const availH = Math.max(200, window.innerHeight - hudH - ctrlH - 16);
   canvas.width = maxW;
   canvas.height = Math.min(availH, maxW * 1.3);
 }
-resize();
+window.addEventListener('load', () => { resize(); if (game) game.resize(); });
 window.addEventListener('resize', () => { resize(); if (game) game.resize(); });
+// 初回はloadイベント前でも試みる
+if (document.readyState === 'complete') resize();
+else document.addEventListener('DOMContentLoaded', resize);
 
 // Audio
 const AC = window.AudioContext || window.webkitAudioContext;
@@ -724,6 +728,9 @@ startBtn.addEventListener('click', () => {
 
 // Init hi score
 hiEl.textContent = localStorage.getItem('invHi') || '0';
+
+// ループを最初から起動（オーバーレイが表示中でも描画できるように）
+loop();
 </script>
 </body>
 </html>
